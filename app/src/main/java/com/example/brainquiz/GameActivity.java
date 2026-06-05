@@ -1,5 +1,6 @@
 package com.example.brainquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -7,7 +8,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.Intent;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -19,7 +19,6 @@ public class GameActivity extends AppCompatActivity {
     int score = 0;
     int currentQuestion = 0;
 
-    // أسئلة English
     String[] questionsEasyEn = {"What is the capital of France?", "What color is the sky?", "How many days in a week?"};
     String[][] answersEasyEn = {{"Paris", "London", "Rome", "Berlin"}, {"Blue", "Red", "Green", "Yellow"}, {"7", "5", "10", "6"}};
     int[] correctEasyEn = {0, 0, 0};
@@ -32,7 +31,6 @@ public class GameActivity extends AppCompatActivity {
     String[][] answersHardEn = {{"12", "14", "10", "16"}, {"Newton", "Einstein", "Galileo", "Darwin"}, {"300,000 km/s", "150,000 km/s", "500,000 km/s", "100,000 km/s"}};
     int[] correctHardEn = {0, 0, 0};
 
-    // أسئلة Arabic
     String[] questionsEasyAr = {"ما عاصمة فرنسا؟", "ما لون السماء؟", "كم يوم في الأسبوع؟"};
     String[][] answersEasyAr = {{"باريس", "لندن", "روما", "برلين"}, {"أزرق", "أحمر", "أخضر", "أصفر"}, {"7", "5", "10", "6"}};
 
@@ -45,6 +43,8 @@ public class GameActivity extends AppCompatActivity {
     String[] questions;
     String[][] answers;
     int[] correct;
+    String language;
+    String level;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +61,20 @@ public class GameActivity extends AppCompatActivity {
         rbOption4 = findViewById(R.id.rbOption4);
         btnNext = findViewById(R.id.btnNext);
 
-        String language = getIntent().getStringExtra("language");
-        String level = getIntent().getStringExtra("level");
+        language = getIntent().getStringExtra("language");
+        level = getIntent().getStringExtra("level");
 
-        tvLevel.setText("Level: " + level);
+        if (language.equals("Arabic")) {
+            String levelAr = level.equals("Easy") ? "سهل" : level.equals("Medium") ? "متوسط" : "صعب";
+            tvLevel.setText("المستوى: " + levelAr);
+            btnNext.setText("التالي");
+            tvScore.setText("النتيجة: 0");
+        } else {
+            tvLevel.setText("Level: " + level);
+            btnNext.setText("Next");
+            tvScore.setText("Score: 0");
+        }
 
-        // اختيار الأسئلة حسب اللغة والمستوى
         if (language.equals("Arabic")) {
             if (level.equals("Easy")) { questions = questionsEasyAr; answers = answersEasyAr; correct = correctEasyEn; }
             else if (level.equals("Medium")) { questions = questionsMediumAr; answers = answersMediumAr; correct = correctMediumEn; }
@@ -82,7 +90,11 @@ public class GameActivity extends AppCompatActivity {
         btnNext.setOnClickListener(v -> {
             int selected = rgAnswers.getCheckedRadioButtonId();
             if (selected == -1) {
-                Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
+                if (language.equals("Arabic")) {
+                    Toast.makeText(this, "اختر إجابة!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
+                }
                 return;
             }
 
@@ -93,12 +105,25 @@ public class GameActivity extends AppCompatActivity {
 
             if (selectedIndex == correct[currentQuestion]) {
                 score++;
-                Toast.makeText(this, "Correct! ✓", Toast.LENGTH_SHORT).show();
+                if (language.equals("Arabic")) {
+                    Toast.makeText(this, "صحيح! ✓", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Correct! ✓", Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(this, "Wrong! ✗", Toast.LENGTH_SHORT).show();
+                if (language.equals("Arabic")) {
+                    Toast.makeText(this, "خطأ! ✗", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Wrong! ✗", Toast.LENGTH_SHORT).show();
+                }
             }
 
-            tvScore.setText("Score: " + score);
+            if (language.equals("Arabic")) {
+                tvScore.setText("النتيجة: " + score);
+            } else {
+                tvScore.setText("Score: " + score);
+            }
+
             currentQuestion++;
 
             if (currentQuestion < questions.length) {
@@ -107,8 +132,8 @@ public class GameActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, ResultActivity.class);
                 intent.putExtra("score", score);
                 intent.putExtra("total", questions.length);
-                intent.putExtra("language", getIntent().getStringExtra("language"));
-                intent.putExtra("level", getIntent().getStringExtra("level"));
+                intent.putExtra("language", language);
+                intent.putExtra("level", level);
                 startActivity(intent);
                 finish();
             }

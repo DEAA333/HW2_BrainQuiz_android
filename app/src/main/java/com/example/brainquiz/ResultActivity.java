@@ -13,6 +13,7 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        TextView tvGameOver = findViewById(R.id.tvGameOver);
         TextView tvFinalScore = findViewById(R.id.tvFinalScore);
         Button btnPlayAgain = findViewById(R.id.btnPlayAgain);
         Button btnBack = findViewById(R.id.btnBack);
@@ -22,7 +23,14 @@ public class ResultActivity extends AppCompatActivity {
         String language = getIntent().getStringExtra("language");
         String level = getIntent().getStringExtra("level");
 
-        tvFinalScore.setText("Score: " + score + "/" + total);
+        if (language.equals("Arabic")) {
+            tvGameOver.setText("انتهت اللعبة!");
+            tvFinalScore.setText("النتيجة: " + score + "/" + total);
+            btnPlayAgain.setText("العب مجدداً");
+            btnBack.setText("العودة للإعدادات");
+        } else {
+            tvFinalScore.setText("Score: " + score + "/" + total);
+        }
 
         btnPlayAgain.setOnClickListener(v -> {
             Intent intent = new Intent(this, GameActivity.class);
